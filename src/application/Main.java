@@ -26,5 +26,8 @@ public class Main {
         seller.setName("Marta Wayne");
         sellerDao.update(seller);
         System.out.println("Update completed");
+
+        sellerDao.deleteById(21);
+        System.out.println("Delete completed");
     }
 }
