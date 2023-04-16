@@ -21,5 +21,10 @@ public class Main {
                 LocalDate.now(), 3807.00, department);
         sellerDao.insert(seller);
         System.out.println("Inserted! New id = " + seller.getId());
+
+        seller = sellerDao.findById(1);
+        seller.setName("Marta Wayne");
+        sellerDao.update(seller);
+        System.out.println("Update completed");
     }
 }

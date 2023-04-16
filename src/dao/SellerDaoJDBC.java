@@ -27,6 +27,9 @@ public class SellerDaoJDBC implements SellerDao {
     public static final String INSERT_SELLER =
             "INSERT INTO seller (Name, Email, BirthDate, BaseSalary, DepartmentId) VALUES (?, ?, ?, ?, ?)";
 
+    public static final String UPDATE_SELLER =
+            "UPDATE seller SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? WHERE Id = ?";
+
     private final Connection conn;
 
     public SellerDaoJDBC(Connection conn) {
@@ -41,7 +44,7 @@ public class SellerDaoJDBC implements SellerDao {
             ps.setString(1, seller.getName());
             ps.setString(2, seller.getEmail());
             ps.setDate(3, Date.valueOf(seller.getBirthDate()));
-            ps.setDouble(4, 3807.00);
+            ps.setDouble(4, seller.getBaseSalary());
             ps.setInt(5, seller.getDepartment().getId());
 
             int rowsAffected = ps.executeUpdate();
@@ -65,7 +68,22 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public void update(Seller seller) {
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(UPDATE_SELLER);
+            ps.setString(1, seller.getName());
+            ps.setString(2, seller.getEmail());
+            ps.setDate(3, Date.valueOf(seller.getBirthDate()));
+            ps.setDouble(4, seller.getBaseSalary());
+            ps.setInt(5, seller.getDepartment().getId());
+            ps.setInt(6, seller.getId());
 
+            ps.executeUpdate();
+        } catch (SQLException exception) {
+            throw new DbException(exception.getMessage());
+        } finally {
+            DB.closeStatement(ps);
+        }
     }
 
     @Override
