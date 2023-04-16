@@ -3,6 +3,9 @@ package application;
 import dao.DaoFactory;
 import dao.SellerDao;
 import entities.Department;
+import entities.Seller;
+
+import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
@@ -13,5 +16,10 @@ public class Main {
         System.out.println(sellerDao.findByDepartment(department));
 
         System.out.println(sellerDao.findAll());
+
+        Seller seller = new Seller(null, "Leonardo", "leonardo@email.com",
+                LocalDate.now(), 3807.00, department);
+        sellerDao.insert(seller);
+        System.out.println("Inserted! New id = " + seller.getId());
     }
 }

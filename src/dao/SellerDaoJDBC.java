@@ -5,10 +5,7 @@ import database.DbException;
 import entities.Department;
 import entities.Seller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +24,10 @@ public class SellerDaoJDBC implements SellerDao {
             "SELECT seller.*, department.Name as DepName FROM seller INNER JOIN department " +
                     "ON seller.DepartmentId = department.id ORDER BY Name";
 
-    private Connection conn;
+    public static final String INSERT_SELLER =
+            "INSERT INTO seller (Name, Email, BirthDate, BaseSalary, DepartmentId) VALUES (?, ?, ?, ?, ?)";
+
+    private final Connection conn;
 
     public SellerDaoJDBC(Connection conn) {
         this.conn = conn;
@@ -35,7 +35,32 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public void insert(Seller seller) {
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(INSERT_SELLER, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, seller.getName());
+            ps.setString(2, seller.getEmail());
+            ps.setDate(3, Date.valueOf(seller.getBirthDate()));
+            ps.setDouble(4, 3807.00);
+            ps.setInt(5, seller.getDepartment().getId());
 
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    int id = rs.getInt(1);
+                    seller.setId(id);
+                }
+                DB.closeResultSet(rs);
+            } else {
+                throw new DbException("Unexpected error");
+            }
+        } catch (SQLException exception) {
+            throw new DbException(exception.getMessage());
+        } finally {
+            DB.closeStatement(ps);
+        }
     }
 
     @Override
